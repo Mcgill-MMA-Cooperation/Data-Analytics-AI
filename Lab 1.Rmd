@@ -1,0 +1,14 @@
+---
+title: "Lab 1"
+author: "Hongyi zhan & Oyundari Batbayar"
+date: "2023-09-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+data = read_csv('video_games_fall_2023.csv')
+attach(data)
+data <- cbind(data, 'Nintendo'=ifelse(publisher=="Nintendo", 0, 1))
+View(data)
+```
