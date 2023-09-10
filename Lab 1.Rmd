@@ -69,6 +69,3 @@ score.plot+
       y = "Score",
       color = "Whether published by Nintendo\n(blue for no, green for yes)")
 ```
-```{r}
-
-```
