@@ -11,6 +11,79 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 data = read_csv('video_games_fall_2023.csv')
 attach(data)
+data <- cbind(data, 'Nintendo'=ifelse(publisher=="Nintendo", 1, 0))
+model5 <- lm(score ~ release_year+as.factor(Nintendo), data = data)
+summary(model5)
+```
+
+With other factors being fixed, the average score for the game that was published by Nintendo would have scored 6.3 points less than the game that was published by any other.
+
+```{r}
+#install.packages("ggplot2")
+library(ggplot2)
+score.plot <- ggplot(data, aes(x=release_year, y=score,color=as.factor(Nintendo))) +
+  geom_point(shape = 0)+
+   scale_color_manual(values = c("blue","green"))+geom_smooth(method = lm,se=FALSE,linewidth=2,linetype=2) 
+
+score.plot +
+  labs(title = "Relationship between the Score in different release year \n for publish by Nintendo and others",
+      x = "Release year",
+      y = "Score",
+      color = "Nintendo(0 for no, 1 for yes)")
+```
+
+
+```{r}
+length(table(genre))
+table(genre)
+```
+
+```{r}
+model6 <- lm(score ~ relevel(as.factor(genre), ref = "Racing"), data = data)
+summary(model6)
+```
+
+```{r}
+model7 <- lm(score ~ relevel(as.factor(genre), ref = "Shooter"), data = data)
+summary(model7)
+```
+
+```{r}
+data2 <- cbind(data, 'Strategy'=ifelse(genre=="Strategy", 1, 0))
+model8 <- lm(score ~ as.factor(Nintendo)+as.factor(Strategy)+as.factor(Nintendo)*as.factor(Strategy), data = data2)
+summary(model8)
+```
+
+```{r}
+model9 <- lm(score ~ as.factor(Nintendo)+release_year+as.factor(Nintendo)*release_year, data = data)
+summary(model9)
+
+score.plot <- ggplot(data, aes(x=release_year, y=score,color=as.factor(Nintendo))) +
+  geom_point(shape = 2)+
+   scale_color_manual(values = c("blue","green"))+
+  geom_abline(data=data,aes(slope=-0.01983-0.41757,intercept=109.83809+844.70328),color='green',linewidth=2,linetype=2)+
+  geom_abline(data=data,aes(slope=-0.01983,intercept=109.83809),color='blue',linewidth=2,linetype=2)
+score.plot+ 
+  labs(title = "Relationship between the Score in different release year \nfor publish by Nintendo and others",
+      x = "Release year",
+      y = "Score",
+      color = "Whether published by Nintendo\n(blue for no, green for yes)")
+```
+
+
+---
+title: "Lab 1"
+author: "Hongyi zhan & Oyundari Batbayar"
+date: "2023-09-09"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("tidyverse")
+library(tidyverse)
+data = read_csv('video_games_fall_2023.csv')
+attach(data)
 data <- cbind(data, 'Nintendo'=ifelse(publisher=="Nintendo", 0, 1))
 model5 <- lm(score ~ release_year+as.factor(Nintendo), data = data)
 summary(model5)
