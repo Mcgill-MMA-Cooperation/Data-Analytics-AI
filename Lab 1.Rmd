@@ -5,9 +5,10 @@ date: "2023-09-09"
 output: html_document
 ---
 
+# 5A,B
+
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-#install.packages("tidyverse")
 library(tidyverse)
 data = read_csv('video_games_fall_2023.csv')
 attach(data)
@@ -18,35 +19,55 @@ summary(model5)
 
 With other factors being fixed, the average score for the game that was published by Nintendo would have scored 6.3 points less than the game that was published by any other.
 
-```{r}
-#install.packages("ggplot2")
-library(ggplot2)
-score.plot <- ggplot(data, aes(x=release_year, y=score,color=as.factor(Nintendo))) +
-  geom_point(shape = 0)+
-   scale_color_manual(values = c("blue","green"))+geom_smooth(method = lm,se=FALSE,linewidth=2,linetype=2) 
+# 5C
 
-score.plot +
-  labs(title = "Relationship between the Score in different release year \n for publish by Nintendo and others",
-      x = "Release year",
-      y = "Score",
-      color = "Nintendo(0 for no, 1 for yes)")
+```{r}
+# Subset the data for Nintendo and non-Nintendo
+nintendo_data <- data[data$Nintendo == 1, ]
+non_nintendo_data <- data[data$Nintendo == 0, ]
+
+# Create a scatterplot for Nintendo
+plot(nintendo_data$release_year, nintendo_data$score, col = "green", pch = 15,
+     xlab = "Release year", ylab = "Score", xlim = c(min(data$release_year), max(data$release_year)),ylim = y_range <- range(data$score))
+
+# Add a linear regression line for Nintendo
+abline(lm(score ~ release_year, data = nintendo_data), col = "green", lwd = 2, lty = 2)
+
+# Add points and a linear regression line for non-Nintendo
+points(non_nintendo_data$release_year, non_nintendo_data$score, col = "blue", pch = 0)
+abline(lm(score ~ release_year, data = non_nintendo_data), col = "blue", lwd = 2, lty = 2)
+
+# Add a legend
+legend("bottomleft", legend = c("Nintendo", "Non-Nintendo"), col = c("green", "blue"), pch = 15, lty = 2,
+       lwd = 2)
+
+# Add a title
+title(main = "Relationship between the Score in different release year \n for publish by Nintendo and others")
+
 ```
 
+# 6A
 
 ```{r}
 length(table(genre))
 table(genre)
 ```
 
+# 6B,C,E
+
 ```{r}
 model6 <- lm(score ~ relevel(as.factor(genre), ref = "Racing"), data = data)
 summary(model6)
 ```
 
+# 6D
+
 ```{r}
 model7 <- lm(score ~ relevel(as.factor(genre), ref = "Shooter"), data = data)
 summary(model7)
 ```
+
+# 7A,B
 
 ```{r}
 data2 <- cbind(data, 'Strategy'=ifelse(genre=="Strategy", 1, 0))
@@ -54,18 +75,27 @@ model8 <- lm(score ~ as.factor(Nintendo)+as.factor(Strategy)+as.factor(Nintendo)
 summary(model8)
 ```
 
+# 7C
+
 ```{r}
 model9 <- lm(score ~ as.factor(Nintendo)+release_year+as.factor(Nintendo)*release_year, data = data)
 summary(model9)
 
-score.plot <- ggplot(data, aes(x=release_year, y=score,color=as.factor(Nintendo))) +
-  geom_point(shape = 2)+
-   scale_color_manual(values = c("blue","green"))+
-  geom_abline(data=data,aes(slope=-0.01983-0.41757,intercept=109.83809+844.70328),color='green',linewidth=2,linetype=2)+
-  geom_abline(data=data,aes(slope=-0.01983,intercept=109.83809),color='blue',linewidth=2,linetype=2)
-score.plot+ 
-  labs(title = "Relationship between the Score in different release year \nfor publish by Nintendo and others",
-      x = "Release year",
-      y = "Score",
-      color = "Whether published by Nintendo\n(blue for no, green for yes)")
+plot(nintendo_data$release_year, nintendo_data$score, col = "green", pch = 17,
+     xlab = "Release year", ylab = "Score", xlim = c(min(data$release_year), max(data$release_year)),ylim = y_range <- range(data$score))
+
+# Add a linear regression line for Nintendo
+abline(109.83809+844.70328,-0.01983-0.41757, col = "green", lwd = 2, lty = 2)
+
+# Add points and a linear regression line for non-Nintendo
+points(non_nintendo_data$release_year, non_nintendo_data$score, col = "blue", pch = 2)
+abline(109.83809,-0.01983, col = "blue", lwd = 2, lty = 2)
+
+# Add a legend
+legend("bottomleft", legend = c("Nintendo", "Non-Nintendo"), col = c("green", "blue"), pch = 2, lty = 2,
+       lwd = 2)
+
+# Add a title
+title(main = "Relationship between the Score in different release year \n for publish by Nintendo and others")
+
 ```
