@@ -5,10 +5,178 @@ date: "2023-09-09"
 output: html_document
 ---
 
-# 5A,B
+# Introduction
 
-```{r setup, include=FALSE}
+This report provides an analysis of a dataset containing video game scores in relation to various factors such as sales, release year, and critic counts.
+
+### Loading the Data and Packages
+
+```{r load_data, echo=TRUE, message=FALSE, warning=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+video_games <- read.csv("video_games_fall_2023.csv")
+library(visreg)
+attach(video_games)
+```
+
+### Question 1: Visualizing variables (Score, Sales Globally (in millions), Release Year)
+
+```{r}
+# Question 1A.
+summary(score)
+
+# Question 1B.
+boxplot(score, main = "Boxplot for Score", xlab="Score", col = "blue")
+
+# Question 1C.
+hist(score, main = "Histogram for Score", ylab = "Frequency", xlab = "Sales Globally (in millions)", breaks = 20, col = "blue")
+
+# Question 1D.
+summary(sales_global)
+
+# Question 1E.
+boxplot(sales_global, main = "Boxplot for Sales Globally (in millions)", xlab = "Sales Globally (in millions)", col = "green")
+
+# Question 1F.
+hist(sales_global, main = "Histogram for Sales Globally (in millions)", xlab = "Sales Globally (in millions)", ylab = "Frequency",breaks = 100, col = "green")
+
+# Question 1G.
+summary(release_year)
+
+# Question 1H.
+boxplot(release_year, main = "Boxplot for Release Year", xlab = "Release Year", col = "orange")
+
+# Question 1I.
+hist(release_year, main = "Histogram for Release Year", xlab = "Release Year", ylab = "Frequency",breaks = 25, col = "orange")
+
+# Question 1J.
+summary(count_critic)
+
+# Question 1K.
+boxplot(count_critic, main = "Boxplot for Count of Critic", xlab = "Count of Critic", col = "purple")
+
+# Question 1L.
+hist(count_critic, main = "Histogram for Count of Critic", xlab = "Count of Critic", ylab = "Frequency",breaks = 10, col = "purple")
+
+# Question 1M. 
+
+par(mfrow=c(1,3))
+genre_colors = as.integer(factor(video_games$genre))
+plot(sales_global, score, 
+     main="Score vs Sales Globally (in millions)", 
+     xlab="Sales Globally (in millions)", 
+     ylab="Score",
+     col = genre_colors, pch=16)
+
+# Scatter plot for score vs release_year
+plot(release_year, score, 
+     main="Score vs Release Year", 
+     xlab="Release Year", 
+     ylab="Score",
+     col= genre_colors, pch=16)
+
+# Scatter plot for score vs count_critic
+plot(count_critic, score, 
+     main="Score vs Count of Critic", 
+     xlab="Count of Critic", 
+     ylab="Score",
+     col= genre_colors, pch=16)
+```
+
+### Question 2: Simple linear regression
+
+```{r}
+# Question 2A.
+
+ols1 = lm(score~sales_global)
+summary(ols1)
+confint(ols1, 'sales_global', level = 0.95)
+visreg(ols1, alpha = 0.05, ylim = c(0,100), main = "Scatterplot of Score vs Sales Globally (in millions)", xlab = "Sales Globally (in millions)", ylab = "Score") 
+
+# Question 2B.
+
+ols2 = lm(score ~ release_year)
+summary(ols2)
+confint(ols2, 'release_year', level = 0.95)
+visreg(ols2, alpha = 0.05, main = "Scatterplot of Score vs Release Year", xlab = "Release Year", ylab = "Score")
+
+# Question 2C.
+
+ols3 = lm(score ~ count_critic)
+summary(ols3)
+confint(ols3, 'count_critic', level = 0.95)
+visreg(ols3, alpha = 0.05, main = "Scatterplot of Score vs Count of Critic", xlab = "Count of Critic", ylab = "Score")
+
+# Question 2D. Can be found in the lab report.
+```
+
+### Question 3: Prediction
+
+```{r}
+# Question 3A.
+coefficients1 <- coef(ols1)
+
+# Extract b0 and b1
+ols1_b0 <- coefficients1[1]
+ols1_b1 <- coefficients1[2]
+
+# Compute the predicted score for 750,000 sales globally. Note sales globally are measured in millions.
+predicted_score1 <- ols1_b0 + ols1_b1 * 0.75
+print(predicted_score1)
+
+
+# Question 3B.
+coefficients2 <- coef(ols2)
+
+# Extract b0 and b1 from ols2
+ols2_b0 <- coefficients2[1]
+ols2_b1 <- coefficients2[2]
+
+# Compute the predicted score for a game released in 2009
+predicted_score2 <- ols2_b0 + ols2_b1 * 2009
+print(predicted_score2)
+
+
+# Question 3C. 
+coefficients3 <- coef(ols3)
+
+# Extract b0 and b1 from ols3
+ols3_b0 <- coefficients3[1]
+ols3_b1 <- coefficients3[2]
+
+# Compute the predicted score for a game reviewed by 80 critics
+predicted_score3 <- ols3_b0 + ols3_b1 * 80
+print(predicted_score3)
+```
+
+## Question 4: Multiple regression
+
+```{r}
+# Question 4A. Can be found in the lab report. 
+
+# Question 4B. 
+ols4 = lm(score ~ sales_global + release_year+count_critic)
+summary(ols4)
+
+# Question 4C. Can be found in the lab report. 
+
+# Question 4D. 
+coefficients4 <- coef(ols4)
+ols4_b0 <- coefficients4[1]
+ols4_b1 <- coefficients4["sales_global"]
+ols4_b2 <- coefficients4["release_year"] 
+ols4_b3 <- coefficients4["count_critic"] 
+
+# Compute the predicted score based on the provided values
+predicted_score4 <- ols4_b0 + ols4_b1 * 0.75 + ols4_b2* 2009 + ols4_b3 * 80
+print(predicted_score4)
+
+# Question E. Can be found in the lab report.
+```
+
+
+## 5A,B
+
+```{r load_data, echo=TRUE, message=FALSE, warning=FALSE}
 library(tidyverse)
 data = read_csv('video_games_fall_2023.csv')
 attach(data)
@@ -19,7 +187,7 @@ summary(model5)
 
 With other factors being fixed, the average score for the game that was published by Nintendo would have scored 6.3 points less than the game that was published by any other.
 
-# 5C
+## 5C
 
 ```{r}
 # Subset the data for Nintendo and non-Nintendo
