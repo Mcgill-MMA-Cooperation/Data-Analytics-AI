@@ -90,7 +90,7 @@ plot(count_critic, score,
 ols1 = lm(score~sales_global)
 summary(ols1)
 confint(ols1, 'sales_global', level = 0.95)
-visreg(ols1, alpha = 0.05, ylim = c(0,100), main = "Scatterplot of Score vs Sales Globally (in millions)", xlab = "Sales Globally (in millions)", ylab = "Score") 
+visreg(ols1, alpha = 0.05, main = "Scatterplot of Score vs Sales Globally (in millions)", xlab = "Sales Globally (in millions)", ylab = "Score") 
 
 # Question 2B.
 
