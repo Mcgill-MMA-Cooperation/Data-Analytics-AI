@@ -60,12 +60,20 @@ hist(count_critic, main = "Histogram for Count of Critic", xlab = "Count of Crit
 # Question 1M. 
 
 par(mfrow=c(1,3))
+
+# Extract unique genre names
+unique_genres <- unique(video_games$genre)
 genre_colors = as.integer(factor(video_games$genre))
+
+# Scatter plot for score vs sales_global
 plot(sales_global, score, 
      main="Score vs Sales Globally (in millions)", 
      xlab="Sales Globally (in millions)", 
      ylab="Score",
      col = genre_colors, pch=16)
+
+# Adding legend
+legend("topright", legend=unique_genres, fill=unique(genre_colors), cex=0.8)
 
 # Scatter plot for score vs release_year
 plot(release_year, score, 
@@ -80,6 +88,7 @@ plot(count_critic, score,
      xlab="Count of Critic", 
      ylab="Score",
      col= genre_colors, pch=16)
+
 ```
 
 ### Question 2: Simple linear regression
