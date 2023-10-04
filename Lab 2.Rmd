@@ -1,0 +1,12 @@
+---
+title: "Lab2"
+author: "Hongyi zhan & Oyundari Batbayar"
+date: "2023-10-04"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+data=read.csv('board_games_fall_2023.csv')
+```
+
