@@ -8,5 +8,11 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 data=read.csv('board_games_fall_2023.csv')
+attach(data)
 ```
 
+```{r}
+library(car)
+model1 = lm(avg_rating~year+avg_timeplay+weight)
+residualPlots(model1)
+```
