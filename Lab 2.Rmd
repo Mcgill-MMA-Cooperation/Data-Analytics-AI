@@ -11,8 +11,25 @@ data=read.csv('board_games_fall_2023.csv')
 attach(data)
 ```
 
+# Q1
+
 ```{r}
 library(car)
 model1 = lm(avg_rating~year+avg_timeplay+weight)
 residualPlots(model1)
+```
+
+# Q2
+
+```{r}
+model2 = lm(avg_rating~avg_timeplay)
+summary(model2)
+residualPlot(model2, quadratic=FALSE)
+ncvTest(model2)
+```
+
+```{r}
+require(lmtest)
+require(plm)
+coeftest(model2, vcov=vcovHC(model2, type='HC1'))
 ```
