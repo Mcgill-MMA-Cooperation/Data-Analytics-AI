@@ -33,3 +33,18 @@ require(lmtest)
 require(plm)
 coeftest(model2, vcov=vcovHC(model2, type='HC1'))
 ```
+
+# Q3
+
+```{r}
+model3 = lm(avg_rating~min_players+age+num_votes)
+summary(model3)
+outlierTest(model3)
+data[3124,]
+data=data[-c(3124), ]
+```
+```{r}
+attach(data)
+model3_1 = lm(avg_rating~min_players+age+num_votes)
+summary(model3_1)
+```
