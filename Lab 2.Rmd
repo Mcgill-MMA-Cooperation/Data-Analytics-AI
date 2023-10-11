@@ -48,3 +48,190 @@ attach(data)
 model3_1 = lm(avg_rating~min_players+age+num_votes)
 summary(model3_1)
 ```
+
+# Q4
+
+```{r}
+require(psych)
+quantvars=data[, c(7, 8, 9, 12)]
+cor(quantvars)
+```
+```{r}
+model4 = lm(avg_rating~year+age+min_timeplay+max_timeplay)
+vif(model4)
+summary(model4)
+model4_1 = lm(avg_rating~year+age+max_timeplay)
+vif(model4_1)
+summary(model4_1)
+```
+
+
+# Q5
+
+```{r}
+reg1=lm(avg_rating ~avg_timeplay)
+reg2=lm(avg_rating ~min_players)
+reg3=lm(avg_rating ~max_players)
+mreg=lm(avg_rating ~avg_timeplay+ min_players+max_players)
+stargazer(reg1, reg2, reg3, mreg, type="html")
+```
+
+
+```{r}
+summary(reg2)
+```
+
+```{r}
+stargazer(reg1, reg2, reg3, mreg, type="html",title="Regression Results", align=TRUE, dep.var.labels=c('Board game rating'),covariate.labels=c('Average timeplay','Minimum number of players', 'Maximum number of players'))
+```
+
+```{r}
+stargazer(reg1, reg2, reg3, mreg, type="html",title="Regression Results", align=TRUE, dep.var.labels=c('Board game rating'),covariate.labels=c('Average timeplay','Minimum number of players', 'Maximum number of players'),digits=2)
+```
+
+# Q6
+
+```{r}
+# Load necessary libraries
+library(stargazer)
+library(latex2exp)
+# Create a data frame with your data
+
+# Fit polynomial regression models
+model6_1 <- lm(avg_rating ~ poly(age, 1, raw = TRUE), data = data)
+model6_2 <- lm(avg_rating ~ poly(age, 2), data = data)
+model6_3 <- lm(avg_rating ~ poly(age, 3), data = data)
+model6_4 <- lm(avg_rating ~ poly(age, 4), data = data)
+
+names(model6_1$coefficients) <- c("Intercept", "Age")
+names(model6_2$coefficients) <- c("Intercept", "Age", "Age²")
+names(model6_3$coefficients) <- c("Intercept", "Age", "Age²", "Age³")
+names(model6_4$coefficients) <- c("Intercept", "Age", "Age²", "Age³", "Age⁴")
+
+# Create a table with coefficient results
+stargazer(model6_1, model6_2, model6_3, model6_4, type="html",
+          title = "Polynomial Regression Models", 
+          align = TRUE,
+          dep.var.labels = "Average Rating",summary = FALSE)
+
+```
+
+
+```{r}
+
+p1 <- ggplot(data, aes(x = age, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y ~ x, color = "blue") +
+    labs(title = paste("Degree", 1),) + 
+    theme_minimal()
+
+
+p2 <- ggplot(data, aes(x = age, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y~poly(x, 2), color = "blue") +
+    labs(title = paste("Degree", 2),) + 
+    theme_minimal()
+
+p3 <- ggplot(data, aes(x = age, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y~poly(x, 3), color = "blue") +
+    labs(title = paste("Degree", 3),) + 
+    theme_minimal()
+
+p4 <- ggplot(data, aes(x = age, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y~poly(x, 4), color = "blue") +
+    labs(title = paste("Degree", 4),) + 
+    theme_minimal()
+
+# Arrange the plots in a 2x2 grid
+
+library(gridExtra)
+grid.arrange(p1,p2,p3,p4, ncol = 2,top = "Polynomial Degree")
+
+
+```
+
+
+```{r}
+anova(model6_1, model6_2, model6_3, model6_4)
+```
+
+
+
+# Q7
+
+```{r}
+# Load necessary libraries
+library(stargazer)
+library(latex2exp)
+# Create a data frame with your data
+
+# Fit polynomial regression models
+model7_1 <- lm(avg_rating ~ poly(avg_timeplay, 1, raw = TRUE), data = data)
+model7_2 <- lm(avg_rating ~ poly(avg_timeplay, 2), data = data)
+model7_3 <- lm(avg_rating ~ poly(avg_timeplay, 3), data = data)
+model7_4 <- lm(avg_rating ~ poly(avg_timeplay, 4), data = data)
+
+names(model7_1$coefficients) <- c("Intercept", "x")
+names(model7_2$coefficients) <- c("Intercept", "x", "x²")
+names(model7_3$coefficients) <- c("Intercept", "x", "x²", "x³")
+names(model7_4$coefficients) <- c("Intercept", "x", "x²", "x³", "x⁴")
+
+# Create a table with coefficient results
+stargazer(model7_1, model7_2, model7_3, model7_4, type="html",
+          title = "Polynomial Regression Models", 
+          align = TRUE,
+          dep.var.labels = "Average Rating",summary = FALSE)
+
+```
+
+
+```{r}
+
+p1 <- ggplot(data, aes(x = avg_timeplay, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y ~ x, color = "green") +
+    labs(title = paste("Degree", 1),) + 
+    theme_minimal()
+
+
+p2 <- ggplot(data, aes(x = avg_timeplay, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y~poly(x, 2), color = "green") +
+    labs(title = paste("Degree", 2),) + 
+    theme_minimal()
+
+p3 <- ggplot(data, aes(x = avg_timeplay, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y~poly(x, 3), color = "green") +
+    labs(title = paste("Degree", 3),) + 
+    theme_minimal()
+
+p4 <- ggplot(data, aes(x = avg_timeplay, y = avg_rating)) +
+    geom_point(color = "grey") +
+    geom_smooth(method = "lm", formula = y~poly(x, 4), color = "green") +
+    labs(title = paste("Degree", 4),) + 
+    theme_minimal()
+
+# Arrange the plots in a 2x2 grid
+
+library(gridExtra)
+grid.arrange(p1,p2,p3,p4, ncol = 2,top = "Polynomial Degree")
+
+
+```
+
+
+```{r}
+anova(model7_1, model7_2, model7_3, model7_4)
+```
+
+
+
+
+
+
+
+
+
