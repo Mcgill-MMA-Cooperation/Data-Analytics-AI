@@ -226,7 +226,181 @@ grid.arrange(p1,p2,p3,p4, ncol = 2,top = "Polynomial Degree")
 ```{r}
 anova(model7_1, model7_2, model7_3, model7_4)
 ```
+# Question 8B
 
+```{r}
+model8 <- lm(avg_rating ~ poly(age, degree = 4) + poly(avg_timeplay, degree = 3), data = board_games) 
+
+library(stargazer)
+
+# Create a table with coefficient results
+stargazer(model8, type="html",
+          title = "Polynomial Regression Model", 
+          align = TRUE,
+          dep.var.labels = "Average Rating",summary = FALSE)
+
+```
+
+
+# Question 9B
+
+```{r}
+library(splines)
+library(stargazer)
+attach(board_games)
+
+# i) A linear spline (with three knots at percentiles 25, 50, and 75)
+
+k1 = quantile(avg_timeplay,.25)
+k2 = quantile(avg_timeplay, .50)
+k3 = quantile(avg_timeplay, .75)
+
+reg1 = lm(avg_rating ~bs(avg_timeplay, knots = c(k1,k2,k3), degree = 1))
+
+# ii) a quadratic spline
+reg2 = lm(avg_rating ~bs(avg_timeplay, knots = c(k1,k2,k3), degree = 2))
+
+# iii) a cubic spline
+reg3 = lm(avg_rating ~bs(avg_timeplay, knots = c(k1,k2,k3), degree = 3))
+
+stargazer(reg1,reg2,reg3, type = "html")
+```
+
+# Question 9C
+
+```{r}
+
+# Create a canvas/environment of the plot
+
+plot = ggplot(board_games, aes(y = avg_rating, x = avg_timeplay))
+scatter = geom_point(col =  "blue")
+
+spline1 = geom_smooth(method = "lm", formula = y~bs(x,knots=c(k1,k2,k3), degree=1), color = "red") 
+
+plot1 = plot+scatter+spline1+geom_vline(xintercept=c(k1,k2,k3), linetype="dotted") + labs(title = "Linear spline, 3 knots")
+
+spline2 = geom_smooth(method="lm", formula=y~bs(x, knots=c(k1,k2,k3), degree=2),  color = "red")
+plot2 = plot+scatter+spline2+geom_vline(xintercept=c(k1,k2,k3), linetype="dotted") + labs(title = "Quadratic spline, 3 knots")
+
+spline3 = geom_smooth(method="lm", formula=y~bs(x, knots=c(k1,k2,k3), degree=3),  color = "red") 
+plot3 = plot+scatter+spline3+geom_vline(xintercept=c(k1,k2,k3), linetype="dotted") + labs(title = "Cubic spline, 3 knots")
+
+library(gridExtra)
+grid.arrange(plot1, plot2, plot3, ncol=1)
+
+```
+
+# Question 10A
+
+```{r}
+mse = rep(NA,10)
+mse_mod = rep(NA,30)
+for (i in 1:10){
+  for (j in 1:30){
+    sample = sample.split(board_games$avg_rating, SplitRatio = 0.5)
+    train_set = subset(board_games, sample==TRUE)
+    test_set = subset(board_games, sample==FALSE)
+    fit = lm(avg_rating~poly(weight,i), data=train_set)
+    actual = test_set$avg_rating
+    prediction = predict(fit, test_set)
+    squared_error = (actual-prediction)^2
+    mse_mod[j] = mean(squared_error)
+  }
+  mse[i] = mean(mse_mod)
+}
+mse
+```
+
+# Question 11C - LOOCV for simple regression
+
+```{r}
+library(boot)  ##package to do cross-validation
+
+fit=glm(avg_rating~weight, data=board_games)  #note: lm=glm, but glm allows us to do cross-validation
+mse=cv.glm(board_games, fit)$delta[1]
+mse
+
+```
+
+# Question 11D 
+
+```{r}
+###Loop of different MSEs
+mse=rep(NA, 10)  
+
+for (i in 1:10) {
+  fit=glm(avg_rating~poly(weight,i), data=board_games) 
+  mse[i]=cv.glm(board_games, fit)$delta[1]
+}
+mse  
+
+```
+
+# Question 12B
+
+```{r}
+mse = rep(NA,10)
+for (i in 1:10){
+  fit = glm(avg_rating~poly(num_votes,i), data=board_games)
+  mse[i] = cv.glm(board_games,fit,K=5)$delta[1]
+}
+
+for (i in 1:10){
+  cat("MSE for d=",i, ": ", round(mse[i],3), "\n")
+}
+```
+
+# Question 13A
+```{r}
+# Load libraries
+library(caret)
+
+# Set the number of folds for cross-validation
+K <- 20
+
+# Create a df with all possible combinations of degrees
+degree_combinations <- expand.grid(a = 1:5, b = 1:5, c = 1:5, d = 1:5)
+
+# Function to calculate MSE for a combination of degrees
+calculate_mse <- function(degrees) {
+  mse_mod <- numeric(K)  # Initialize vector to store K-fold MSE values
+  
+  for (fold in 1:K) {
+    set.seed(fold)  # Set seed for reproducibility
+    folds <- createFolds(1:nrow(board_games), k = K, list = TRUE)
+    train_indices <- unlist(folds[-fold])  # Indices for training set
+    test_indices <- folds[[fold]]  # Indices for test set
+    
+    train_data <- board_games[train_indices, ]
+    test_data <- board_games[test_indices, ]
+    
+    model <- glm(
+      avg_rating ~
+        bs(train_data$age, degree = degrees[1]) +
+        bs(train_data$year, degree = degrees[2]) +
+        bs(train_data$num_votes, degree = degrees[3]) +
+        bs(train_data$avg_timeplay, degree = degrees[4]),
+      data = train_data, family = gaussian(link = "identity")
+    )
+    
+    test_predictions <- predict(model, newdata = test_data, type = "response")
+    
+    mse_mod[fold] <- mean((test_data$avg_rating - test_predictions)^2)
+  }
+  
+  return(mean(mse_mod))
+}
+
+# Calculate MSE for all combinations of degrees and find the best combination
+mse_values <- sapply(1:nrow(degree_combinations), function(i) calculate_mse(degree_combinations[i, ]))
+best_combination_idx <- which.min(mse_values)  # Index of the best combination
+best_combination <- degree_combinations[best_combination_idx, ]  # Extract the best combination
+
+# Print the best combination of degrees and its MSE
+cat("Best combination of degrees: a =", best_combination$a, ", b =", best_combination$b, ", c =", best_combination$c, ", d =", best_combination$d, "\n")
+cat("Lowest Mean MSE:", min(mse_values), "\n")
+
+```
 
 
 
