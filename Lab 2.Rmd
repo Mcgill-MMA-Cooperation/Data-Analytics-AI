@@ -229,7 +229,7 @@ anova(model7_1, model7_2, model7_3, model7_4)
 # Question 8B
 
 ```{r}
-model8 <- lm(avg_rating ~ poly(age, degree = 4) + poly(avg_timeplay, degree = 3), data = board_games) 
+model8 <- lm(avg_rating ~ poly(age, degree = 4) + poly(avg_timeplay, degree = 3), data = data) 
 
 library(stargazer)
 
@@ -247,7 +247,7 @@ stargazer(model8, type="html",
 ```{r}
 library(splines)
 library(stargazer)
-attach(board_games)
+attach(data)
 
 # i) A linear spline (with three knots at percentiles 25, 50, and 75)
 
@@ -272,8 +272,8 @@ stargazer(reg1,reg2,reg3, type = "html")
 
 # Create a canvas/environment of the plot
 
-plot = ggplot(board_games, aes(y = avg_rating, x = avg_timeplay))
-scatter = geom_point(col =  "blue")
+plot = ggplot(data, aes(y = avg_rating, x = avg_timeplay))
+scatter = geom_point(col =  "grey")
 
 spline1 = geom_smooth(method = "lm", formula = y~bs(x,knots=c(k1,k2,k3), degree=1), color = "red") 
 
@@ -297,9 +297,9 @@ mse = rep(NA,10)
 mse_mod = rep(NA,30)
 for (i in 1:10){
   for (j in 1:30){
-    sample = sample.split(board_games$avg_rating, SplitRatio = 0.5)
-    train_set = subset(board_games, sample==TRUE)
-    test_set = subset(board_games, sample==FALSE)
+    sample = sample.split(data$avg_rating, SplitRatio = 0.5)
+    train_set = subset(data, sample==TRUE)
+    test_set = subset(data, sample==FALSE)
     fit = lm(avg_rating~poly(weight,i), data=train_set)
     actual = test_set$avg_rating
     prediction = predict(fit, test_set)
@@ -316,8 +316,8 @@ mse
 ```{r}
 library(boot)  ##package to do cross-validation
 
-fit=glm(avg_rating~weight, data=board_games)  #note: lm=glm, but glm allows us to do cross-validation
-mse=cv.glm(board_games, fit)$delta[1]
+fit=glm(avg_rating~weight, data=data) 
+mse=cv.glm(data, fit)$delta[1]
 mse
 
 ```
@@ -329,8 +329,8 @@ mse
 mse=rep(NA, 10)  
 
 for (i in 1:10) {
-  fit=glm(avg_rating~poly(weight,i), data=board_games) 
-  mse[i]=cv.glm(board_games, fit)$delta[1]
+  fit=glm(avg_rating~poly(weight,i), data=data) 
+  mse[i]=cv.glm(data, fit)$delta[1]
 }
 mse  
 
@@ -341,8 +341,8 @@ mse
 ```{r}
 mse = rep(NA,10)
 for (i in 1:10){
-  fit = glm(avg_rating~poly(num_votes,i), data=board_games)
-  mse[i] = cv.glm(board_games,fit,K=5)$delta[1]
+  fit = glm(avg_rating~poly(num_votes,i), data=data)
+  mse[i] = cv.glm(data,fit,K=5)$delta[1]
 }
 
 for (i in 1:10){
@@ -367,12 +367,12 @@ calculate_mse <- function(degrees) {
   
   for (fold in 1:K) {
     set.seed(fold)  # Set seed for reproducibility
-    folds <- createFolds(1:nrow(board_games), k = K, list = TRUE)
+    folds <- createFolds(1:nrow(data), k = K, list = TRUE)
     train_indices <- unlist(folds[-fold])  # Indices for training set
     test_indices <- folds[[fold]]  # Indices for test set
     
-    train_data <- board_games[train_indices, ]
-    test_data <- board_games[test_indices, ]
+    train_data <- data[train_indices, ]
+    test_data <- data[test_indices, ]
     
     model <- glm(
       avg_rating ~
@@ -401,11 +401,3 @@ cat("Best combination of degrees: a =", best_combination$a, ", b =", best_combin
 cat("Lowest Mean MSE:", min(mse_values), "\n")
 
 ```
-
-
-
-
-
-
-
-
