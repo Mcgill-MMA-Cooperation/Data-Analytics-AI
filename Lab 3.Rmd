@@ -1,0 +1,25 @@
+---
+title: "Lab3"
+author: "Hongyi zhan"
+date: "2023-11-09"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+df = read.csv('wine_data.csv')
+attach(df)
+```
+
+```{r}
+library(ggplot2)
+hist = ggplot(df,aes(x=alcohol))+geom_histogram(bins=50)+facet_grid(cultivar)+xlab('Alcohol level (in %)')
+hist
+```
+
+
+```{r}
+library(ggplot2)
+hist = ggplot(df,aes(x=acid))+geom_histogram(bins=50)+facet_grid(cultivar)+xlab('Acid level (in g/L)')
+hist
+```
