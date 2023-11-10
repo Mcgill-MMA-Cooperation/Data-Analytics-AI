@@ -23,3 +23,25 @@ library(ggplot2)
 hist = ggplot(df,aes(x=acid))+geom_histogram(bins=50)+facet_grid(cultivar)+xlab('Acid level (in g/L)')
 hist
 ```
+
+```{r}
+library(MASS)
+library(klaR)
+mylda=lda(cultivar~alcohol+acid)
+mylda
+```
+
+```{r}
+partimat(as.factor(cultivar)~alcohol+acid,method='lda',image.colors=c('light grey','light green','white'))
+```
+```{r}
+predict(mylda,data.frame(alcohol=14, acid=3))
+```
+```{r}
+myqda=qda(cultivar~alcohol+acid)
+myqda
+```
+
+```{r}
+partimat(as.factor(cultivar)~alcohol+acid,method='qda',image.colors=c('light grey','light green','white'))
+```
