@@ -11,12 +11,10 @@ election_data <- read_csv("C:/Users/oyund/Downloads/election_data.csv")
 attach(election_data)
 ```
 
-## Q1. The linear probability model
-
-Q1A. Run LPM
+# Question 1. The linear probability model
 
 ```{r}
-# Let's make sure the variable is recognized by R as a categorical variable
+# Let's first make sure the variable is recognized by R as a categorical variable
 election_data$winner = as.factor(election_data$winner)
 
 # Let's see the categories for this variable
@@ -27,7 +25,7 @@ election_data$winner_binary = ifelse(election_data$winner =="Trump", 1, 0)
 attach(election_data)
 table(winner_binary)
 ```
-# Q1A
+## Q1A
 
 ```{r}
 # Now we are ready to run LPM
@@ -37,7 +35,7 @@ library(stargazer)
 stargazer(lpm, type = "html")
 ```
 
-# Q1C
+## Q1C
 
 ```{r}
 # Let's predict based on the previous LPM
@@ -97,7 +95,7 @@ prob
 ```
 # Question 2. Logistic Regression
 
-# Q2A
+## Q2A
 ```{r}
 logit = glm(winner_binary ~ pop2014 + under18 + density + black + hispanic , family = "binomial", data = election_data)
 summary(logit)
@@ -106,7 +104,7 @@ library(stargazer)
 stargazer(logit, type = "html")
 ```
 
-#Q2C
+## Q2C
 ```{r}
 
 # Coefficients 
@@ -137,7 +135,7 @@ p_win <- exp(logit_p) / (1 + exp(logit_p))
 
 p_win
 ```
-# Q2D
+## Q2D
 
 ```{r}
 require(rms)
@@ -145,7 +143,7 @@ logit_r = lrm(winner_binary ~ pop2014 + under18 + density + black + hispanic , d
 logit_r
 ```
 
-# Q2E
+## Q2E
 ```{r}
 
 # Coefficients 
@@ -180,7 +178,7 @@ print(paste("Probability of winning:", p_win))
 print(paste("Predicted winner:", ifelse(predicted_winner == 1, "Trump", "Hillary")))
 ```
 
-#Q2F
+## Q2F
 
 ```{r}
 # Coefficients
@@ -211,7 +209,7 @@ print(likelihood)
 
 ```
 
-# Q2G
+## Q2G
 
 ```{r}
 # Coefficients
