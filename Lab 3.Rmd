@@ -1,10 +1,247 @@
 ---
 title: "Lab3"
-author: "Hongyi zhan"
+author: "Hongyi zhan & Oyundari Batbayar"
 date: "2023-11-09"
 output: pdf_document
 ---
 
+```{r, show_col_types = FALSE}
+library(readr)
+election_data <- read_csv("C:/Users/oyund/Downloads/election_data.csv")
+attach(election_data)
+```
+
+## Q1. The linear probability model
+
+Q1A. Run LPM
+
+```{r}
+# Let's make sure the variable is recognized by R as a categorical variable
+election_data$winner = as.factor(election_data$winner)
+
+# Let's see the categories for this variable
+table(winner)
+
+# Create a {0,1} variable called winner_binary
+election_data$winner_binary = ifelse(election_data$winner =="Trump", 1, 0)
+attach(election_data)
+table(winner_binary)
+```
+# Q1A
+
+```{r}
+# Now we are ready to run LPM
+lpm = lm(winner_binary ~ pop2014 + under18 + density + black + hispanic, data = election_data)
+summary(lpm)
+library(stargazer)
+stargazer(lpm, type = "html")
+```
+
+# Q1C
+
+```{r}
+# Let's predict based on the previous LPM
+# Coefficients from the linear model
+intercept <- 0.8308
+pop2014_coef <- -1.734e-07
+under18_coef <- 8.944e-01
+density_coef <- -1.059e-04
+black_coef <- -8.973e-01
+hispanic_coef <- -5.892e-01
+
+# Values for the county
+pop2014 <- 250000
+under18 <- 10 / 100  
+density <- 175
+black <- 45 / 100 
+hispanic <- 10 / 100  
+
+# Calculating the prob
+prob <- (intercept +
+          pop2014_coef * pop2014 +
+          under18_coef * under18 +
+          density_coef * density +
+          black_coef * black +
+          hispanic_coef * hispanic)
+
+prob
+```
+
+## Q1D
+
+```{r}
+# Coefficients from the linear model
+intercept <- 0.8308
+pop2014_coef <- -1.734e-07
+under18_coef <- 8.944e-01
+density_coef <- -1.059e-04
+black_coef <- -8.973e-01
+hispanic_coef <- -5.892e-01
+
+# Values for the county
+pop2014 <- 1000000
+under18 <- 20 / 100 
+density <- 1000
+black <- 85 / 100 
+hispanic <- 5 / 100  
+
+# Calculating the prob
+prob <- (intercept +
+          pop2014_coef * pop2014 +
+          under18_coef * under18 +
+          density_coef * density +
+          black_coef * black +
+          hispanic_coef * hispanic)
+
+prob
+```
+# Question 2. Logistic Regression
+
+# Q2A
+```{r}
+logit = glm(winner_binary ~ pop2014 + under18 + density + black + hispanic , family = "binomial", data = election_data)
+summary(logit)
+
+library(stargazer)
+stargazer(logit, type = "html")
+```
+
+#Q2C
+```{r}
+
+# Coefficients 
+intercept <- 1.138e+00
+pop2014_coef <- -2.098e-06
+under18_coef <- 1.336e+01
+density_coef <- -1.831e-03
+black_coef <- -7.134e+00
+hispanic_coef <- -5.680e+00
+
+# Values
+pop2014 <- 1000000
+under18 <- 20 / 100 
+density <- 1000
+black <- 85 / 100 
+hispanic <- 5 / 100  
+
+# Calculation
+logit_p <- (intercept +
+          pop2014_coef * pop2014 +
+          under18_coef * under18 +
+          density_coef * density +
+          black_coef * black +
+          hispanic_coef * hispanic)
+
+# Converting logit(P) to probability P(win)
+p_win <- exp(logit_p) / (1 + exp(logit_p))
+
+p_win
+```
+# Q2D
+
+```{r}
+require(rms)
+logit_r = lrm(winner_binary ~ pop2014 + under18 + density + black + hispanic , data = election_data)
+logit_r
+```
+
+# Q2E
+```{r}
+
+# Coefficients 
+intercept <- 1.138e+00
+pop2014_coef <- -2.098e-06
+under18_coef <- 1.336e+01
+density_coef <- -1.831e-03
+black_coef <- -7.134e+00
+hispanic_coef <- -5.680e+00
+
+# Values
+pop2014 <- 250000
+under18 <- 25 / 100 
+density <- 100
+black <- 50 / 100 
+hispanic <- 10 / 100  
+
+# Calculation
+logit_p <- (intercept +
+          pop2014_coef * pop2014 +
+          under18_coef * under18 +
+          density_coef * density +
+          black_coef * black +
+          hispanic_coef * hispanic)
+
+# Converting logit(P) to probability P(win)
+p_win <- exp(logit_p) / (1 + exp(logit_p))
+
+p_win
+predicted_winner <- ifelse(p_win > 0.5, 1, 0)
+print(paste("Probability of winning:", p_win))
+print(paste("Predicted winner:", ifelse(predicted_winner == 1, "Trump", "Hillary")))
+```
+
+#Q2F
+
+```{r}
+# Coefficients
+b0 <- -0.75
+b1 <- 0.03
+b2 <- 0.01
+
+# Dataset
+observations <- data.frame(
+  winner = c('Trump', 'Clinton', 'Trump', 'Clinton'),
+  hispanic = c(0.15, 0.25, 0.05, 0.75),
+  undergrad = c(0.20, 0.55, 0.05, 0.10)
+)
+
+# Convert 'winner' to binary outcome, 1 for Trump, 0 for Clinton
+observations$winner_binary <- ifelse(observations$winner == 'Trump', 1, 0)
+
+# Calculate the likelihood
+likelihood <- 1
+for(i in 1:nrow(observations)){
+  logit <- b0 + b1 * observations$hispanic[i] + b2 * observations$undergrad[i]
+  p_win <- 1 / (1 + exp(-logit))
+  likelihood <- likelihood * p_win^observations$winner_binary[i] * (1 - p_win)^(1 - observations$winner_binary[i])
+}
+
+# Print the likelihood
+print(likelihood)
+
+```
+
+# Q2G
+
+```{r}
+# Coefficients
+b0 <- -1
+b1 <- 2
+b2 <- 4
+
+# Dataset
+observations <- data.frame(
+  winner = c('Trump', 'Clinton', 'Trump', 'Clinton'),
+  hispanic = c(0.15, 0.25, 0.05, 0.75),
+  undergrad = c(0.20, 0.55, 0.05, 0.10)
+)
+
+# Convert 'winner' to binary outcome, 1 for Trump, 0 for Clinton
+observations$winner_binary <- ifelse(observations$winner == 'Trump', 1, 0)
+
+# Calculate the likelihood
+likelihood <- 1
+for(i in 1:nrow(observations)){
+  logit <- b0 + b1 * observations$hispanic[i] + b2 * observations$undergrad[i]
+  p_win <- 1 / (1 + exp(-logit))
+  likelihood <- likelihood * p_win^observations$winner_binary[i] * (1 - p_win)^(1 - observations$winner_binary[i])
+}
+
+# Print the likelihood
+print(likelihood)
+```
+
+# Question 3.
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 df = read.csv('wine_data.csv')
