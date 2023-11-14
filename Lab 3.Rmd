@@ -247,6 +247,11 @@ attach(df)
 ```
 
 ```{r}
+category_counts <- table(df$cultivar)
+prop.table(category_counts)
+```
+
+```{r}
 library(ggplot2)
 hist = ggplot(df,aes(x=alcohol))+geom_histogram(bins=50)+facet_grid(cultivar)+xlab('Alcohol level (in %)')
 hist
