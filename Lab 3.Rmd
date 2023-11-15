@@ -144,9 +144,9 @@ logit_r
 ```
 
 ## Q2E
-```{r}
 
-# Coefficients 
+```{r}
+# Coefficients
 intercept <- 1.138e+00
 pop2014_coef <- -2.098e-06
 under18_coef <- 1.336e+01
@@ -155,27 +155,17 @@ black_coef <- -7.134e+00
 hispanic_coef <- -5.680e+00
 
 # Values
-pop2014 <- 250000
-under18 <- 25 / 100 
-density <- 100
-black <- 50 / 100 
-hispanic <- 10 / 100  
+pop2014_value <- 250000 
+under18_value <- 25/100 
+density_value <- 100
+hispanic_value <- 10/100 
 
-# Calculation
-logit_p <- (intercept +
-          pop2014_coef * pop2014 +
-          under18_coef * under18 +
-          density_coef * density +
-          black_coef * black +
-          hispanic_coef * hispanic)
+black_tipping_point <- -(intercept + pop2014_coef*pop2014_value + under18_coef*under18_value +
+                         density_coef*density_value + hispanic_coef*hispanic_value) / black_coef
 
-# Converting logit(P) to probability P(win)
-p_win <- exp(logit_p) / (1 + exp(logit_p))
+# Print
+print(black_tipping_point)
 
-p_win
-predicted_winner <- ifelse(p_win > 0.5, 1, 0)
-print(paste("Probability of winning:", p_win))
-print(paste("Predicted winner:", ifelse(predicted_winner == 1, "Trump", "Hillary")))
 ```
 
 ## Q2F
