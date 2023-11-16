@@ -147,25 +147,25 @@ logit_r
 
 ```{r}
 # Coefficients
-intercept <- 1.138e+00
-pop2014_coef <- -2.098e-06
-under18_coef <- 1.336e+01
-density_coef <- -1.831e-03
-black_coef <- -7.134e+00
-hispanic_coef <- -5.680e+00
+# Logistic regression coefficients
+b0 <- logit$coefficients[1]  # Intercept
+b1 <- logit$coefficients[2]  # Coefficient for population in 2014
+b2 <- logit$coefficients[3]  # Coefficient for the percentage under 18
+b3 <- logit$coefficients[4]  # Coefficient for density
+b4 <- logit$coefficients[5]  # Coefficient for the percentage of black population
+b5 <- logit$coefficients[6]  # Coefficient for the percentage of Hispanic population
 
-# Values
-pop2014_value <- 250000 
-under18_value <- 25/100 
-density_value <- 100
-hispanic_value <- 10/100 
+# Calculate the probability threshold for the black population
+probability <- (log(0.5 / (1-0.5)) - b0 - b1*250000 - b2*0.25 - b3*100 - b5*0.1) / b4
 
-black_tipping_point <- -(intercept + pop2014_coef*pop2014_value + under18_coef*under18_value +
-                         density_coef*density_value + hispanic_coef*hispanic_value) / black_coef
+# Print the probability threshold
+print(probability)
 
-# Print
-print(black_tipping_point)
+# Calculate the actual number of black individuals
+black_population <- probability * 250000
 
+# Print the number of black individuals
+print(black_population)
 ```
 
 ## Q2F
